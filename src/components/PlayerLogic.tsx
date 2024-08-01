@@ -4,6 +4,7 @@ import { debounce } from "lodash";
 import playersApi from "@/api/playersApi";
 import { Player, Team } from "@/types/Types";
 import PlayersUI from "./PlayerUI";
+import Modal from "@/components/Modal";
 
 const Players: React.FC = () => {
   const [teams, setTeams] = useState<Team[]>([
@@ -15,6 +16,9 @@ const Players: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [modalMessage, setModalMessage] = useState<string>("");
+
   const playersPerPage = 6;
 
   const playersMap = useMemo(() => {
@@ -57,7 +61,8 @@ const Players: React.FC = () => {
 
       // Validar si el equipo ya tiene 5 jugadores
       if (team.players.length >= 5) {
-        alert("El equipo ya tiene 5 jugadores.");
+        setModalMessage("El equipo ya tiene 5 jugadores.");
+        setModalOpen(true);
         return prevTeams;
       }
 
@@ -66,7 +71,8 @@ const Players: React.FC = () => {
         team.players.some((p) => p.id === playerId)
       );
       if (isPlayerInAnyTeam) {
-        alert("El jugador ya está asignado a otro equipo.");
+        setModalMessage("El jugador ya está asignado a otro equipo.");
+        setModalOpen(true);
         return prevTeams;
       }
 
@@ -90,20 +96,30 @@ const Players: React.FC = () => {
   );
 
   return (
-    <PlayersUI
-      teams={teams}
-      setTeams={setTeams}
-      searchTerm={searchTerm}
-      setSearchTerm={setSearchTerm}
-      availablePlayers={availablePlayers}
-      currentPlayers={currentPlayers}
-      loading={loading}
-      error={error}
-      currentPage={currentPage}
-      playersPerPage={playersPerPage}
-      handleAddPlayerToTeam={handleAddPlayerToTeam}
-      handlePageChange={handlePageChange}
-    />
+    <>
+      <PlayersUI
+        teams={teams}
+        setTeams={setTeams}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        availablePlayers={availablePlayers}
+        currentPlayers={currentPlayers}
+        loading={loading}
+        error={error}
+        currentPage={currentPage}
+        playersPerPage={playersPerPage}
+        handleAddPlayerToTeam={handleAddPlayerToTeam}
+        handlePageChange={handlePageChange}
+      />
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title="Información"
+        message={modalMessage}
+        confirmButtonText="Cerrar"
+        onConfirm={() => setModalOpen(false)}
+      />
+    </>
   );
 };
 
