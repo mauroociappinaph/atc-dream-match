@@ -49,13 +49,34 @@ const Players: React.FC = () => {
   }, [searchTerm, fetchPlayers]);
 
   const handleAddPlayerToTeam = (teamId: number, playerId: number) => {
-    setTeams((prevTeams) =>
-      prevTeams.map((team) =>
+    setTeams((prevTeams) => {
+      const team = prevTeams.find((team) => team.id === teamId);
+      const player = playersMap.get(playerId);
+
+      if (!team || !player) return prevTeams;
+
+      // Validar si el equipo ya tiene 5 jugadores
+      if (team.players.length >= 5) {
+        alert("El equipo ya tiene 5 jugadores.");
+        return prevTeams;
+      }
+
+      // Validar si el jugador ya está en otro equipo
+      const isPlayerInAnyTeam = prevTeams.some((team) =>
+        team.players.some((p) => p.id === playerId)
+      );
+      if (isPlayerInAnyTeam) {
+        alert("El jugador ya está asignado a otro equipo.");
+        return prevTeams;
+      }
+
+      // Agregar el jugador al equipo
+      return prevTeams.map((team) =>
         team.id === teamId
-          ? { ...team, players: [...team.players, playersMap.get(playerId)!] }
+          ? { ...team, players: [...team.players, player] }
           : team
-      )
-    );
+      );
+    });
   };
 
   const handlePageChange = (direction: "next" | "prev") => {
@@ -71,7 +92,7 @@ const Players: React.FC = () => {
   return (
     <PlayersUI
       teams={teams}
-      setTeams={setTeams} // Añadir esta línea
+      setTeams={setTeams}
       searchTerm={searchTerm}
       setSearchTerm={setSearchTerm}
       availablePlayers={availablePlayers}
