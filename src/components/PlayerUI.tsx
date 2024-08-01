@@ -35,11 +35,11 @@ const PlayersUI: React.FC<PlayersUIProps> = ({
         {loading && <Loading />}
         {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
       </div>
-      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4 md:p-6">
+      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 p-4 md:p-6 justify-center items-center">
         {currentPlayers.map((player) => (
           <div
             key={player.id}
-            className="relative overflow-hidden transition-transform duration-300 ease-in-out rounded-lg shadow-lg group hover:shadow-xl hover:-translate-y-2"
+            className="relative overflow-hidden transition-transform duration-300 ease-in-out rounded-lg shadow-lg group hover:shadow-xl hover:-translate-y-2 flex justify-center items-center"
           >
             <img
               src={player.image || "/placeholder.svg"}
@@ -69,19 +69,26 @@ const PlayersUI: React.FC<PlayersUIProps> = ({
         ))}
       </section>
       {availablePlayers.length > 0 && (
-        <div className="flex justify-between w-full px-4 my-4">
-          <Button
-            onClick={() => handlePageChange("prev")}
-            disabled={currentPage <= 1}
-          >
-            Previous
-          </Button>
-          <Button
-            onClick={() => handlePageChange("next")}
-            disabled={currentPage >= totalPages}
-          >
-            Next
-          </Button>
+        <div className="flex justify-center mt-4">
+          <nav className="inline-flex -space-x-px">
+            <Button
+              onClick={() => handlePageChange("prev")}
+              disabled={currentPage <= 1}
+              className="rounded-l-md bg-white border border-gray-300 text-gray-500 hover:bg-gray-50"
+            >
+              Previous
+            </Button>
+            <span className="px-4 py-2 bg-white border-t border-b border-gray-300 text-gray-700">
+              {currentPage} / {totalPages}
+            </span>
+            <Button
+              onClick={() => handlePageChange("next")}
+              disabled={currentPage >= totalPages}
+              className="rounded-r-md bg-white border border-gray-300 text-gray-500 hover:bg-gray-50"
+            >
+              Next
+            </Button>
+          </nav>
         </div>
       )}
       <div className="w-full mt-8">
