@@ -2,6 +2,7 @@
 import React from "react";
 import Button from "@/components/ui/Button";
 import TeamComponent from "@/components/TeamsComponent";
+import Loading from "@/components/ui/Loading";
 import { PlayersUIProps } from "@/types/Types";
 
 const PlayersUI: React.FC<PlayersUIProps> = ({
@@ -31,7 +32,7 @@ const PlayersUI: React.FC<PlayersUIProps> = ({
           onChange={(e) => setSearchTerm(e.target.value)}
           className="flex-1 px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
-        {loading && <div className="text-sm text-blue-600">Cargando...</div>}
+        {loading && <Loading />}
         {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
       </div>
       <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4 md:p-6">
