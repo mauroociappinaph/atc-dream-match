@@ -44,7 +44,7 @@ const Players: React.FC = () => {
       } finally {
         setLoading(false);
       }
-    }, 300),
+    }),
     []
   );
 
