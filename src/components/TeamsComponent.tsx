@@ -1,106 +1,49 @@
-// components/TeamComponent.tsx
-import React, { useState } from "react";
+// src/components/TeamComponent.tsx
+import React from "react";
+import { TeamComponentProps } from "@/types/Types";
 
-interface Team {
-  id: number;
-  name: string;
-}
-
-const TeamComponent: React.FC = () => {
-  const [teams, setTeams] = useState<Team[]>([]);
-  const [newTeamName, setNewTeamName] = useState<string>("");
-  const [editMode, setEditMode] = useState<{ id: number | null; name: string }>(
-    { id: null, name: "" }
-  );
-
-  const handleAddTeam = () => {
-    if (teams.length < 2 && newTeamName.trim()) {
-      const newTeam = { id: Date.now(), name: newTeamName };
-      setTeams([...teams, newTeam]);
-      setNewTeamName("");
-    }
-  };
-
-  const handleEditTeam = (id: number) => {
-    const teamToEdit = teams.find((team) => team.id === id);
-    if (teamToEdit) {
-      setEditMode({ id: teamToEdit.id, name: teamToEdit.name });
-    }
-  };
-
-  const handleUpdateTeam = () => {
-    setTeams(
-      teams.map((team) =>
-        team.id === editMode.id ? { ...team, name: editMode.name } : team
-      )
-    );
-    setEditMode({ id: null, name: "" });
-  };
-
-  const handleDeleteTeam = (id: number) => {
-    setTeams(teams.filter((team) => team.id !== id));
-  };
-
+const TeamComponent: React.FC<TeamComponentProps> = ({ teams }) => {
   return (
-    <div className="max-w-xl mx-auto mt-10 p-5 bg-white shadow-lg rounded-lg">
-      <h1 className="text-2xl font-bold mb-5 text-center">Team Manager</h1>
-      {teams.map((team) => (
-        <div key={team.id} className="mb-4 p-4 border rounded-lg shadow-sm">
-          {editMode.id === team.id ? (
-            <div className="flex items-center space-x-3">
-              <input
-                type="text"
-                className="flex-1 p-2 border rounded"
-                value={editMode.name}
-                onChange={(e) =>
-                  setEditMode({ ...editMode, name: e.target.value })
-                }
-              />
-              <button
-                className="px-4 py-2 bg-blue-500 text-white rounded"
-                onClick={handleUpdateTeam}
-              >
-                Update
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center justify-between">
-              <span className="text-lg">{team.name}</span>
-              <div className="flex space-x-2">
-                <button
-                  className="px-3 py-1 bg-yellow-500 text-white rounded"
-                  onClick={() => handleEditTeam(team.id)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="px-3 py-1 bg-red-500 text-white rounded"
-                  onClick={() => handleDeleteTeam(team.id)}
-                >
-                  Delete
-                </button>
+    <div className="bg-background p-6 rounded-lg shadow-lg">
+      <div className="flex flex-col items-center space-y-6">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold">Los Campeones</h1>
+          <p className="text-muted-foreground">Equipo de Fútbol 5</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {teams.map((team) => (
+            <div key={team.id} className="bg-card p-4 rounded-lg shadow-md">
+              <div className="flex flex-col items-center space-y-4">
+                <h3 className="text-2xl font-semibold mb-4 text-gray-800">
+                  {team.name}
+                </h3>
+                <ul className="list-none space-y-4">
+                  {team.players.map((player) => (
+                    <li
+                      key={player.id}
+                      className="flex items-center space-x-4 p-2 bg-gray-50 rounded hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="flex-shrink-0">
+                        <img
+                          className="h-16 w-16 rounded-full object-cover"
+                          src={player.image}
+                          alt={player.name}
+                        />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold">{player.name}</h3>
+                        <p className="text-muted-foreground">
+                          {player.position}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
-          )}
+          ))}
         </div>
-      ))}
-      {teams.length < 2 && (
-        <div className="mt-5 flex space-x-3">
-          <input
-            type="text"
-            className="flex-1 p-2 border rounded"
-            placeholder="Enter team name"
-            value={newTeamName}
-            onChange={(e) => setNewTeamName(e.target.value)}
-          />
-          <button
-            className="px-4 py-2 bg-green-500 text-white rounded"
-            onClick={handleAddTeam}
-          >
-            Add Team
-          </button>
-        </div>
-      )}
+      </div>
     </div>
   );
 };
