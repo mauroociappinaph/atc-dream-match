@@ -4,7 +4,7 @@ import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
+const metadata = {
   title: "ATC Dream Match",
   description:
     "Crea tu equipo de futbol de ensueño con tus jugadores favoritos.",
