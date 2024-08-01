@@ -1,124 +1,61 @@
 "use client";
-// Imports
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Layout from "../layout";
 import playersApi from "@/api/playersApi";
 import Button from "../../components/ui/Button";
+import { debounce } from "lodash";
 
-// Player interface
-interface Player {
-  id: string;
-  name: string;
-}
-
-// Team interface
-interface Team {
-  id: number;
-  name: string;
-  players: Player[];
-}
-
-// Teams component
 const Teams = () => {
-  const [teams, setTeams] = useState<Team[]>([
+  const [teams, setTeams] = useState([
     { id: 1, name: "Equipo 1", players: [] },
     { id: 2, name: "Equipo 2", players: [] },
   ]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
-  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
+  const [availablePlayers, setAvailablePlayers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [currentAction, setCurrentAction] = useState({ type: "", id: "" });
+  const [currentPage, setCurrentPage] = useState(1);
+  const playersPerPage = 6;
 
-  // Load players based on search term
-  useEffect(() => {
-    if (searchTerm.trim() !== "") {
+  const indexOfLastPlayer = currentPage * playersPerPage;
+  const indexOfFirstPlayer = indexOfLastPlayer - playersPerPage;
+  const currentPlayers = availablePlayers.slice(
+    indexOfFirstPlayer,
+    indexOfLastPlayer
+  );
+
+  const debouncedFetchPlayers = useCallback(
+    debounce(async (searchTerm) => {
       setLoading(true);
-      playersApi
-        .getPlayers(searchTerm)
-        .then((players) => {
-          const filteredPlayers = players
-            .filter((player) =>
-              player.name
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase().trim())
-            )
-            .slice(0, 9); // Limit results to 9
-          setAvailablePlayers(filteredPlayers);
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error("Failed to load players:", error);
-          setError("Error al cargar jugadores");
-          setLoading(false);
-        });
-    } else {
-      setAvailablePlayers([]);
-    }
-  }, [searchTerm]);
-
-  // Add a player to a team
-  const handleAddPlayerToTeam = (teamId: number, playerId: string) => {
-    const newTeams = teams.map((team) => {
-      if (team.id === teamId) {
-        const newPlayers = [
-          ...team.players,
-          availablePlayers.find((p) => p.id === playerId)!,
-        ];
-        return { ...team, players: newPlayers };
+      try {
+        const players = await playersApi.getPlayers(searchTerm);
+        setAvailablePlayers(players);
+      } catch (error) {
+        setError(`Error al cargar jugadores: ${error.message}`);
+      } finally {
+        setLoading(false);
       }
-      return team;
-    });
-    setTeams(newTeams);
-  };
+    }, 300),
+    []
+  );
 
-  // Edit team name
-  const handleEditTeamName = (teamId: number, newName: string) => {
-    const updatedTeams = teams.map((team) =>
-      team.id === teamId ? { ...team, name: newName } : team
-    );
-    setTeams(updatedTeams);
-  };
-
-  // Delete team
-  const handleDeleteTeam = (teamId: number) => {
-    setTeams(teams.filter((team) => team.id !== teamId));
-  };
-
-  // Delete player from a team
-  const handleRemovePlayerFromTeam = (teamId: number, playerId: string) => {
-    const updatedTeams = teams.map((team) => {
-      if (team.id === teamId) {
-        const filteredPlayers = team.players.filter(
-          (player) => player.id !== playerId
-        );
-        return { ...team, players: filteredPlayers };
-      }
-      return team;
-    });
-    setTeams(updatedTeams);
-  };
-
-  // Confirm action
-  const confirmAction = (type: string, id: string) => {
-    setCurrentAction({ type, id });
-    setConfirmOpen(true);
-  };
-
-  // Execute confirmed action
-  const executeAction = () => {
-    if (currentAction.type === "deleteTeam") {
-      handleDeleteTeam(parseInt(currentAction.id));
-    } else if (currentAction.type === "deletePlayer") {
-      const teamId = teams.find((team) =>
-        team.players.some((p) => p.id === currentAction.id)
-      )!.id;
-      handleRemovePlayerFromTeam(teamId, currentAction.id);
+  useEffect(() => {
+    if (searchTerm) {
+      debouncedFetchPlayers(searchTerm);
     }
-    setConfirmOpen(false);
+  }, [searchTerm, debouncedFetchPlayers]);
+
+  const handleNextPage = () => {
+    if (currentPage < Math.ceil(availablePlayers.length / playersPerPage)) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+    }
   };
 
   return (
@@ -134,69 +71,37 @@ const Teams = () => {
             className="px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
           {loading && <div className="text-sm text-blue-600">Cargando...</div>}
+          {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
         </div>
-        {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
         <div className="mt-4 w-full max-w-4xl grid grid-cols-3 gap-4">
-          {availablePlayers.map((player) => (
+          {currentPlayers.map((player) => (
             <div
               key={player.id}
-              onClick={() => setSelectedPlayerId(player.id)}
               className="bg-white p-4 shadow rounded-lg text-center cursor-pointer"
+              onClick={() => console.log(`Selected: ${player.name}`)}
             >
-              {player.name}
+              {player.image && (
+                <img
+                  src={player.image}
+                  alt={player.name}
+                  style={{ width: "100px", height: "100px" }}
+                />
+              )}
+              <div>{player.name}</div>
+              <div>{player.completeName}</div>
+              <Button onClick={() => handleAddPlayerToTeam(1, player.id)}>
+                Add to Team 1
+              </Button>
+              <Button onClick={() => handleAddPlayerToTeam(2, player.id)}>
+                Add to Team 2
+              </Button>
             </div>
           ))}
         </div>
-        {teams.map((team) => (
-          <div key={team.id} className="mt-4 p-4 bg-white shadow rounded-lg">
-            <h2 className="text-xl font-bold">{team.name}</h2>
-            <input
-              type="text"
-              value={team.name}
-              onChange={(e) => handleEditTeamName(team.id, e.target.value)}
-              className="text-lg mb-2"
-            />
-            {team.players.map((player) => (
-              <div
-                key={player.id}
-                className="flex justify-between items-center"
-              >
-                <span>{player.name}</span>
-                <Button
-                  onClick={() => confirmAction("deletePlayer", player.id)}
-                >
-                  Remove
-                </Button>
-              </div>
-            ))}
-            <Button
-              onClick={() =>
-                selectedPlayerId &&
-                handleAddPlayerToTeam(team.id, selectedPlayerId)
-              }
-            >
-              Add Selected Player
-            </Button>
-            <Button
-              onClick={() => confirmAction("deleteTeam", team.id.toString())}
-            >
-              Delete Team
-            </Button>
-          </div>
-        ))}
-        {teams.length < 2 && (
-          <Button
-            onClick={() =>
-              setTeams([
-                ...teams,
-                { id: teams.length + 1, name: "New Team", players: [] },
-              ])
-            }
-          >
-            Create New Team
-          </Button>
-        )}
-
+        <div className="flex justify-between width-full px-4 my-4">
+          <Button onClick={handlePreviousPage}>Previous</Button>
+          <Button onClick={handleNextPage}>Next</Button>
+        </div>
         <Link href="/" className="mt-4 text-blue-500 hover:underline">
           Volver al inicio
         </Link>
