@@ -39,7 +39,7 @@ const PlayersUI: React.FC<PlayersUIProps> = ({
         {currentPlayers.map((player) => (
           <div
             key={player.id}
-            className="relative overflow-hidden transition-transform duration-300 ease-in-out rounded-lg shadow-lg group hover:shadow-xl hover:-translate-y-2 flex justify-center items-center"
+            className="relative overflow-hidden transition-transform duration-300 ease-in-out rounded-lg shadow-lg group hover:shadow-xl hover:-translate-y-2 flex flex-col justify-center items-center"
           >
             <img
               src={player.image || "/placeholder.svg"}
