@@ -5,6 +5,7 @@ import Layout from "../layout";
 import playersApi from "@/api/playersApi";
 import { debounce } from "lodash";
 import Button from "@/components/ui/Button";
+import TeamComponent from "@/components/TeamsComponent";
 
 interface Player {
   id: number;
@@ -20,7 +21,7 @@ interface Team {
   players: Player[];
 }
 
-const Teams: React.FC = () => {
+const Players: React.FC = () => {
   const [teams, setTeams] = useState<Team[]>([
     { id: 1, name: "Equipo 1", players: [] },
     { id: 2, name: "Equipo 2", players: [] },
@@ -172,6 +173,7 @@ const Teams: React.FC = () => {
             Next
           </Button>
         </div>
+        <TeamComponent />
         <Link
           href="/"
           className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
@@ -183,4 +185,4 @@ const Teams: React.FC = () => {
   );
 };
 
-export default Teams;
+export default Players;
