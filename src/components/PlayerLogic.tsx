@@ -40,7 +40,7 @@ const Players: React.FC = () => {
       } finally {
         setLoading(false);
       }
-    }),
+    }, 300),
     []
   );
 
@@ -67,12 +67,15 @@ const Players: React.FC = () => {
     startIndex,
     startIndex + playersPerPage
   );
+
   return (
     <PlayersUI
       teams={teams}
+      setTeams={setTeams} // Añadir esta línea
       searchTerm={searchTerm}
       setSearchTerm={setSearchTerm}
-      availablePlayers={currentPlayers}
+      availablePlayers={availablePlayers}
+      currentPlayers={currentPlayers}
       loading={loading}
       error={error}
       currentPage={currentPage}
