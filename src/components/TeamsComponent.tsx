@@ -37,8 +37,7 @@ const TeamComponent: React.FC<TeamComponentProps> = ({ teams, setTeams }) => {
     <div className="bg-background p-6 rounded-lg shadow-lg">
       <div className="flex flex-col items-center space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold">Los Campeones</h1>
-          <p className="text-muted-foreground">Equipo de Fútbol 5</p>
+          <h1 className="text-3xl font-bold">Crear Equipos</h1>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {teams.map((team) => (
